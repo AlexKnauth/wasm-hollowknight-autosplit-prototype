@@ -1,18 +1,28 @@
     <Ordered>True</Ordered>
     <AutosplitEndRuns>True</AutosplitEndRuns>
-    <AutosplitStartRuns/>
+    <AutosplitStartRuns></AutosplitStartRuns>
     <Splits>
-      <Split>KingsPass</Split>
-      <Split>Grub1</Split>
-      <Split>EnterBroodingMawlek</Split>
-      <Split>MaskFragment1</Split>
-      <Split>Grub2</Split>
-      <Split>MaskFragment2</Split>
-      <Split>GruzMother</Split>
-      <Split>SlyRescued</Split>
-      <Split>Grub3</Split>
-      <Split>Grub4</Split>
-      <Split>Grub5</Split>
-      <Split>MaskFragment3</Split>
-      <Split>Mask1</Split>
+      <Split>VengefulSpirit</Split>
+      <Split>EnterGreenpath</Split>
+      <Split>MothwingCloak</Split>
+      <Split>NotchShrumalOgres</Split>
+      <Split>MantisClaw</Split>
+      <Split>BlueLake</Split>
+      <Split>DreamNail</Split>
+      <Split>NightmareLantern</Split>
+      <Split>GorgeousHusk</Split>
+      <Split>Lemm2</Split>
+      <Split>Grimmchild</Split>
+      <Split>CrystalGuardian1</Split>
+      <Split>CrystalHeart</Split>
+      <Split>ElegantKey</Split>
+      <Split>ShadeSoul</Split>
+      <Split>Grimmchild2</Split>
+      <Split>Flame3</Split>
+      <Split>TroupeMasterGrimm</Split>
+      <Split>BrummFlame</Split>
+      <Split>TramPass</Split>
+      <Split>Flame2</Split>
+      <Split>EnterNKG</Split>
+      <Split>NightmareKingGrimm</Split>
     </Splits>
