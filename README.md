@@ -47,12 +47,48 @@ currently does not work all the time.
 
 ## Instructions for Splits Settings
 
-There are 2 ways that this autosplitter can currently get Splits Settings:
- - From the `src/AutoSplitterSettings.txt` file of this repository
+There are multiple ways that this autosplitter can currently get Splits Settings:
  - From a `.lsl` LiveSplit Layout file that's been saved with Splits Settings before
+ - From a `.lss` Splits file using LiveSplit Windows with my fork of `LiveSplit.AutoSplittingRuntime`
+ - From a `.lss` Splits file using my fork of `livesplit-one-desktop`, which doesn't require Windows
+ - From the `src/AutoSplitterSettings.txt` file of this repository
 
-For starting out with new Splits that you haven't run with this autosplitter before,
-you should start with the `src/AutoSplitterSettings.txt` file.
+### Using my fork of `LiveSplit.AutoSplittingRuntime`
+
+The branch you need to get the Splits Settings from your existing splits files is called `legacy-xml-hack`.
+
+If you want to clone my fork on branch `legacy-xml-hack` directly, you can do so with
+```sh
+git clone -b legacy-xml-hack https://github.com/AlexKnauth/LiveSplit.AutoSplittingRuntime.git
+```
+
+The `LiveSplit.AutoSplittingRuntime` repo has both Rust code and C# code.
+The `build.sh` script can build the Rust code, and Microsoft Visual Studio can build the C# code.
+
+There are 3 files from `LiveSplit.AutoSplittingRuntime` that need to be copied over to your `LiveSplit` folder:
+ - `LiveSplit.AutoSplittingRuntime/obj/Debug/LiveSplit.AutoSplittingRuntime.dll` -> `<LiveSplit>/Components/LiveSplit.AutoSplittingRuntime.dll`
+ - `LiveSplit.AutoSplittingRuntime/x64/asr_capi.dll` -> `<LiveSplit>/Components/x64/asr_capi.dll`
+ - `LiveSplit.AutoSplittingRuntime/x86/asr_capi.dll` -> `<LiveSplit>/Components/x86/asr_capi.dll`
+
+Make sure you copy the `asr_capi.dll` ones to their respective `x64` and `x86` paths *inside* the `Components` folder: don't just put them in the other `x64` and `x86` directories that also exist outside of the `Components` folder.
+
+When using this with a Splits file for the first time,
+make sure you use a fresh `.lsl` layout file,
+one that hasn't been used with this autosplitter with a different Splits file before.
+
+### Using my fork of `livesplit-one-desktop`
+
+The branch you need to get the Splits Settings from your existing splits files is called `legacy-xml-hack`.
+
+If you want to clone my fork on branch `legacy-xml-hack` directly, you can do so with
+```sh
+git clone -b legacy-xml-hack https://github.com/AlexKnauth/livesplit-one-desktop.git
+```
+
+### Using `src/AutoSplitterSettings.txt`
+
+If you can't use or don't want to use my forks of LiveSplit-related things,
+you can still configure this autosplitter with the `src/AutoSplitterSettings.txt` file.
 
 If you're unsure of what to put there,
 you can open up a Splits `.lss` file in a text editor,
@@ -136,7 +172,7 @@ When you run either `livesplit-one-desktop` or the `asr-debugger`, it needs to h
 On Mac, that might require running it under `sudo`.
 For example in the `livesplit-one-desktop` repository, you can run
 ```sh
-sudo cargo run --release
+sudo ./target/release/livesplit-one
 ```
 
 Finally, do not manually split, skip, or undo splits while running with this autosplitter.
