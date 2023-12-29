@@ -66,16 +66,17 @@ async fn main() {
                     let trans_now = scene_store.transition_now(&process, &game_manager_finder);
                     match splits::splits(current_split, &process, &game_manager_finder, trans_now, &mut scene_store, &mut player_data_store) {
                         SplitterAction::Split => {
-                            split_index(&mut i, n);
+                            splitter_action(SplitterAction::Split, &mut i, n);
                             next_tick().await;
                         }
                         SplitterAction::Skip => {
-                            todo!("Skip");
+                            splitter_action(SplitterAction::Skip, &mut i, n);
+                            next_tick().await;
                         }
                         SplitterAction::Reset => {
                             i = 0;
                             load_remover.load_removal(&process, &game_manager_finder, i);
-                            split_index(&mut i, n);
+                            splitter_action(SplitterAction::Reset, &mut i, n);
                         }
                         SplitterAction::Pass => {
                             if auto_reset {
@@ -83,7 +84,7 @@ async fn main() {
                                     SplitterAction::Split | SplitterAction::Reset => {
                                         i = 0;
                                         load_remover.load_removal(&process, &game_manager_finder, i);
-                                        split_index(&mut i, n);
+                                        splitter_action(SplitterAction::Split, &mut i, n);
                                     }
                                     _ => (),
                                 }
@@ -121,14 +122,27 @@ async fn main() {
     }
 }
 
-fn split_index(i: &mut usize, n: usize) {
-    if *i == 0 {
-        asr::timer::reset();
-        asr::timer::start();
-    } else {
-        asr::timer::split();
+fn splitter_action(a: SplitterAction, i: &mut usize, n: usize) {
+    match a {
+        SplitterAction::Pass => (),
+        SplitterAction::Reset => {
+            asr::timer::reset();
+            *i = 0;
+        }
+        SplitterAction::Skip => {
+            asr::timer::skip_split();
+            *i += 1;
+        }
+        SplitterAction::Split if *i == 0 => {
+            asr::timer::reset();
+            asr::timer::start();
+            *i += 1;
+        }
+        SplitterAction::Split => {
+            asr::timer::split();
+            *i += 1;
+        }
     }
-    *i += 1;
     if n <= *i {
         *i = 0;
     }
