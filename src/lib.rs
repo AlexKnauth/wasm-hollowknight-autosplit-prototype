@@ -12,6 +12,7 @@ use asr::time::Duration;
 use asr::timer::TimerState;
 use settings_gui::SettingsGui;
 use hollow_knight_memory::*;
+use splits::SplitterAction;
 use ugly_widget::store::StoreGui;
 
 asr::async_main!(stable);
@@ -63,13 +64,31 @@ async fn main() {
                 loop {
                     let current_split = &splits[i];
                     let trans_now = scene_store.transition_now(&process, &game_manager_finder);
-                    if splits::splits(current_split, &process, &game_manager_finder, trans_now, &mut scene_store, &mut player_data_store) {
-                        split_index(&mut i, n);
-                        next_tick().await;
-                    } else if auto_reset && splits::splits(&splits[0], &process, &game_manager_finder, trans_now, &mut scene_store, &mut player_data_store) {
-                        i = 0;
-                        load_remover.load_removal(&process, &game_manager_finder, i);
-                        split_index(&mut i, n);
+                    match splits::splits(current_split, &process, &game_manager_finder, trans_now, &mut scene_store, &mut player_data_store) {
+                        SplitterAction::Split => {
+                            split_index(&mut i, n);
+                            next_tick().await;
+                        }
+                        SplitterAction::Skip => {
+                            todo!("Skip");
+                        }
+                        SplitterAction::Reset => {
+                            i = 0;
+                            load_remover.load_removal(&process, &game_manager_finder, i);
+                            split_index(&mut i, n);
+                        }
+                        SplitterAction::Pass => {
+                            if auto_reset {
+                                match splits::splits(&splits[0], &process, &game_manager_finder, trans_now, &mut scene_store, &mut player_data_store) {
+                                    SplitterAction::Split | SplitterAction::Reset => {
+                                        i = 0;
+                                        load_remover.load_removal(&process, &game_manager_finder, i);
+                                        split_index(&mut i, n);
+                                    }
+                                    _ => (),
+                                }
+                            }
+                        }
                     }
 
                     if trans_now && scene_store.pair().old == MENU_TITLE {
