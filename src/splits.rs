@@ -36,6 +36,14 @@ fn should_split(b: bool) -> SplitterAction {
     }
 }
 
+fn should_skip(b: bool) -> SplitterAction {
+    if b {
+        SplitterAction::Skip
+    } else {
+        SplitterAction::Pass
+    }
+}
+
 #[derive(Clone, Debug, Default, Deserialize, Eq, Gui, Ord, PartialEq, PartialOrd, RadioButtonOptions, Serialize)]
 pub enum Split {
     // region: Start, End, and Menu
