@@ -477,6 +477,7 @@ pub enum Split {
     /// 
     /// Splits when getting the Mask Shard from Brooding Mawlek
     MaskShardMawlek,
+    MaskShardMawlekChoice,
     /// Grub Reward Mask Shard (Obtain)
     /// 
     /// Splits when getting the Mask Shard given by Grubfather
@@ -485,6 +486,7 @@ pub enum Split {
     /// 
     /// Splits when getting the Goam Mask Shard in Forgotten Crossroads
     MaskShardGoam,
+    MaskShardGoamChoice,
     /// Queen's Station Mask Shard (Obtain)
     /// 
     /// Splits when getting the Mask Shard in Queen's Station
@@ -1190,6 +1192,7 @@ pub enum Split {
     /// 
     /// Splits when rescuing the grub in Crossroads_35
     GrubCrossroadsAcid,
+    GrubCrossroadsAcidChoice,
     /// Rescued Grub Crossroads Guarded (Grub)
     /// 
     /// Splits when rescuing the grub in Crossroads_48
@@ -1202,6 +1205,7 @@ pub enum Split {
     /// 
     /// Splits when rescuing the grub in Crossroads_05
     GrubCrossroadsVengefly,
+    GrubCrossroadsVengeflyChoice,
     /// Rescued Grub Crossroads Wall (Grub)
     /// 
     /// Splits when rescuing the grub in Crossroads_03
@@ -1532,6 +1536,7 @@ pub enum Split {
     /// 
     /// Splits when entering the Brooding Mawlek arena transition in Forgotten Crossroads
     EnterBroodingMawlek,
+    EnterBroodingMawlekChoice,
     /// Brooding Mawlek (Boss)
     /// 
     /// Splits when killing Brooding Mawlek
@@ -2597,6 +2602,9 @@ pub fn transition_splits(s: &Split, p: &Pair<&str>, prc: &Process, g: &GameManag
         // endregion: Dirtmouth
         // region: Crossroads
         Split::EnterBroodingMawlek => should_split(p.current == "Crossroads_09" && p.current != p.old),
+        Split::EnterBroodingMawlekChoice => should_split(p.current == "Crossroads_09" && p.current != p.old).or_else(|| {
+            should_skip(p.old == "Crossroads_07" && p.current == "Crossroads_33")
+        }),
         Split::AncestralMound => should_split(p.current == "Crossroads_ShamanTemple" && p.current != p.old),
         Split::TransVS => should_split(1 <= pds.get_fireball_level(prc, g) && p.current != p.old),
         Split::SalubraExit => should_split(p.old == "Room_Charm_Shop" && p.current != p.old),
@@ -2906,12 +2914,18 @@ pub fn continuous_splits(s: &Split, p: &Process, g: &GameManagerFinder, pds: &mu
         Split::MaskFragment15 => should_split(g.heart_pieces(p).is_some_and(|s| s == 15 || (g.max_health_base(p).is_some_and(|h| h == 8) && s == 3))),
         Split::Mask4 => should_split(g.max_health_base(p).is_some_and(|h| h == 9)),
         Split::MaskShardMawlek => should_split(g.get_scene_name(p).is_some_and(|s| s == "Crossroads_09") && pds.obtained_mask_shard(p, g)),
+        Split::MaskShardMawlekChoice => should_split(g.get_scene_name(p).is_some_and(|s| s == "Crossroads_09") && pds.obtained_mask_shard(p, g)).or_else(|| {
+            should_skip(g.get_scene_name(p).is_some_and(|s| s == "Crossroads_07") && g.get_next_scene_name(p).is_some_and(|s| s == "Crossroads_33"))
+        }),
         Split::MaskShardGrubfather => should_split(g.get_scene_name(p).is_some_and(|s| s == "Crossroads_38") && pds.obtained_mask_shard(p, g)),
         Split::MaskShardBretta => should_split(g.get_scene_name(p).is_some_and(|s| s == "Room_Bretta") && pds.obtained_mask_shard(p, g)),
         Split::MaskShardQueensStation => should_split(g.get_scene_name(p).is_some_and(|s| s == "Fungus2_01") && pds.obtained_mask_shard(p, g)),
         Split::MaskShardEnragedGuardian => should_split(g.get_scene_name(p).is_some_and(|s| s == "Mines_32") && pds.obtained_mask_shard(p, g)),
         Split::MaskShardSeer => should_split(g.get_scene_name(p).is_some_and(|s| s == "RestingGrounds_07") && pds.obtained_mask_shard(p, g)),
         Split::MaskShardGoam => should_split(g.get_scene_name(p).is_some_and(|s| s == "Crossroads_13") && pds.obtained_mask_shard(p, g)),
+        Split::MaskShardGoamChoice => should_split(g.get_scene_name(p).is_some_and(|s| s == "Crossroads_13") && pds.obtained_mask_shard(p, g)).or_else(|| {
+            should_skip(g.get_scene_name(p).is_some_and(|s| s == "Crossroads_13") && g.get_next_scene_name(p).is_some_and(|s| s == "Crossroads_42"))
+        }),
         Split::MaskShardStoneSanctuary => should_split(g.get_scene_name(p).is_some_and(|s| s == "Fungus1_36") && pds.obtained_mask_shard(p, g)),
         Split::MaskShardWaterways => should_split(g.get_scene_name(p).is_some_and(|s| s == "Waterways_04b") && pds.obtained_mask_shard(p, g)),
         Split::MaskShardFungalCore => should_split(g.get_scene_name(p).is_some_and(|s| s == "Fungus2_25") && pds.obtained_mask_shard(p, g)),
@@ -3100,9 +3114,15 @@ pub fn continuous_splits(s: &Split, p: &Process, g: &GameManagerFinder, pds: &mu
         Split::GrubCitySpire => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Ruins2_03")),
         Split::GrubCliffsBaldurShell => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Fungus1_28")),
         Split::GrubCrossroadsAcid => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Crossroads_35")),
+        Split::GrubCrossroadsAcidChoice => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Crossroads_35")).or_else(|| {
+            should_skip(g.get_scene_name(p).is_some_and(|s| s == "Crossroads_33") && g.get_next_scene_name(p).is_some_and(|s| s == "Crossroads_08"))
+        }),
         Split::GrubCrossroadsGuarded => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Crossroads_48")),
         Split::GrubCrossroadsSpikes => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Crossroads_31")),
         Split::GrubCrossroadsVengefly => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Crossroads_05")),
+        Split::GrubCrossroadsVengeflyChoice => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Crossroads_05")).or_else(|| {
+            should_skip(g.get_scene_name(p).is_some_and(|s| s == "Crossroads_07") && g.get_next_scene_name(p).is_some_and(|s| s == "Crossroads_25" || s == "Crossroads_33"))
+        }),
         Split::GrubCrossroadsWall => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Crossroads_03")),
         Split::GrubCrystalPeaksBottomLever => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Mines_04")),
         Split::GrubCrystalPeaksCrown => should_split(pds.incremented_grubs_collected(p, g) && g.get_scene_name(p).is_some_and(|s| s == "Mines_24")),
