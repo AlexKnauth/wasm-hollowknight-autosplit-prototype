@@ -3,16 +3,16 @@
     <AutosplitStartRuns></AutosplitStartRuns>
     <Splits>
       <Split>KingsPass</Split>
-      <Split>Grub1</Split>
-      <Split>EnterBroodingMawlek</Split>
-      <Split>MaskFragment1</Split>
-      <Split>Grub2</Split>
-      <Split>MaskFragment2</Split>
+      <Split>GrubCrossroadsVengeflyChoice</Split>
+      <Split>EnterBroodingMawlekChoice</Split>
+      <Split>MaskShardMawlekChoice</Split>
+      <Split>GrubCrossroadsAcidChoice</Split>
+      <Split>MaskShardGoamChoice</Split>
       <Split>GruzMother</Split>
       <Split>SlyRescued</Split>
-      <Split>Grub3</Split>
-      <Split>Grub4</Split>
-      <Split>Grub5</Split>
+      <Split>GrubCrossroadsSpikes</Split>
+      <Split>GrubCrossroadsWall</Split>
+      <Split>GrubCrossroadsGuarded</Split>
       <Split>MaskFragment3</Split>
       <Split>Mask1</Split>
     </Splits>
