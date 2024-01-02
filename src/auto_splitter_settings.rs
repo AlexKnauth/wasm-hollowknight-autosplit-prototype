@@ -1,6 +1,7 @@
 use alloc::collections::{BTreeMap, BTreeSet};
 use alloc::vec::Vec;
 use asr::future::retry;
+use std::{path::Path, fs::File, io::{self, Read}};
 use xmltree::{Element, XMLNode};
 
 pub trait Settings: Sized {
@@ -80,6 +81,13 @@ impl Default for XMLSettings {
 }
 
 impl XMLSettings {
+    pub fn from_file<P: AsRef<Path>>(path: P, list_items: &[(&str, &str)]) -> Option<Self> {
+        let list_items = list_items.into_iter().map(|(l, i)| (l.to_string(), i.to_string())).collect();
+        let bs = file_read_all_bytes(path).ok()?;
+        let es = Element::parse_all(bs.as_slice()).ok()?;
+        let auto_splitter_settings = es.iter().find_map(xml_find_auto_splitter_settings)?;
+        Some(XMLSettings { name: None, children: auto_splitter_settings, list_items })
+    }
     pub fn from_xml_string(s: &str, list_items: &[(&str, &str)]) -> Result<Self, xmltree::ParseError> {
         let list_items = list_items.into_iter().map(|(l, i)| (l.to_string(), i.to_string())).collect();
         Ok(XMLSettings { name: None, children: Element::parse_all(s.as_bytes())?, list_items })
@@ -156,6 +164,24 @@ impl Settings for XMLSettings {
     }
 }
 
+fn xml_find_auto_splitter_settings(xml: &XMLNode) -> Option<Vec<XMLNode>> {
+    let e = xml.as_element()?;
+    match e.name.as_str() {
+        "AutoSplitterSettings" => Some(e.children.clone()),
+        "Run" => Some(e.get_child("AutoSplitterSettings")?.children.clone()),
+        "Layout" => e.get_child("Components")?.children.iter().find_map(xml_find_auto_splitter_settings),
+        "Component" if component_is_asr(e) => Some(e.get_child("Settings")?.children.clone()),
+        _ => None,
+    }
+}
+
+fn component_is_asr(e: &Element) -> bool {
+    let Some(p) = e.get_child("Path") else { return false; };
+    let [c] = &p.children[..] else { return false; };
+    let Some(s) = c.as_text() else { return false; };
+    s.contains("LiveSplit.AutoSplittingRuntime")
+}
+
 // --------------------------------------------------------
 
 fn maybe_asr_settings_map_merge<S: Settings>(old: Option<asr::settings::Map>, new: &S) -> asr::settings::Map {
@@ -206,4 +232,13 @@ fn maybe_asr_settings_list_merge<S: Settings>(old: Option<asr::settings::List>, 
         }
         ml
     }
+}
+
+// --------------------------------------------------------
+
+fn file_read_all_bytes<P: AsRef<Path>>(path: P) -> io::Result<Vec<u8>> {
+    let mut f = File::open(path)?;
+    let mut buffer: Vec<u8> = Vec::new();
+    f.read_to_end(&mut buffer)?;
+    Ok(buffer)
 }

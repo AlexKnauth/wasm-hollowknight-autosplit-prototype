@@ -4,10 +4,13 @@ use asr::settings::gui::{Gui, Widget};
 pub trait StoreGui: Gui {
     fn insert_into(&self, settings_map: &asr::settings::Map) -> bool;
 
+    fn post_update(&mut self) {}
+
     fn load_update_store_if_unchanged(&mut self) -> bool {
         let settings_map = asr::settings::Map::load();
         let old = settings_map.clone();
         self.update_from(&settings_map);
+        self.post_update();
         if self.insert_into(&settings_map) {
             settings_map.store_if_unchanged(&old)
         } else {

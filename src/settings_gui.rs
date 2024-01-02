@@ -1,11 +1,18 @@
-use asr::settings::gui::{Gui, Title};
+use asr::{settings::gui::{FileSelect, Gui, Title, Widget}, watcher::Pair};
 
-use ugly_widget::{ugly_list::UglyList, store::{StoreWidget, StoreGui}};
+use ugly_widget::{
+    ugly_list::{UglyList, UglyListArgs},
+    store::{StoreWidget, StoreGui},
+    args::SetHeadingLevel,
+};
 
 use crate::{splits::{Split, self}, auto_splitter_settings::{Settings, SettingsObject, XMLSettings}};
 
 #[derive(Gui)]
 pub struct SettingsGui {
+    /// Import Splits
+    #[filter((_, "*.lss *.lsl"))]
+    import: Pair<FileSelect>,
     /// General Settings
     _general_settings: Title,
     /// Splits
@@ -14,6 +21,31 @@ pub struct SettingsGui {
 }
 
 impl StoreGui for SettingsGui {
+    fn post_update(&mut self) {
+        if self.import.changed() {
+            asr::print_message(&format!("import {}", self.import.current.path));
+            if let Some(xml_settings) = XMLSettings::from_file(&self.import.current.path, &[("Splits", "Split")]) {
+                let new_splits = splits_from_settings(&xml_settings);
+                // new empty map, which will only include the new splits
+                let settings_map = asr::settings::Map::new();
+                let l = asr::settings::List::new();
+                for split in new_splits.iter() {
+                    l.push(Split::to_string(split).as_str());
+                }
+                settings_map.insert("splits", l);
+                let mut splits_args = UglyListArgs::default();
+                splits_args.set_heading_level(1);
+                self.splits.update_from(&settings_map, "splits", splits_args);
+                let new_splits2 = self.splits.get_list();
+                if new_splits.iter().collect::<Vec<&Split>>() != new_splits2 {
+                    asr::print_message("BAD");
+                } else {
+                    asr::print_message(&format!("splits: {:?}", new_splits));
+                }
+            }
+        }
+    }
+
     fn insert_into(&self, settings_map: &asr::settings::Map) -> bool {
         self.splits.insert_into(settings_map, "splits")
     }
