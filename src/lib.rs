@@ -42,7 +42,7 @@ async fn main() {
             .until_closes(async {
                 // TODO: Load some initial information from the process.
                 let mut scene_store = SceneStore::new();
-                let mut load_remover = LoadRemover::new();
+                let mut load_remover = HitCounter::new();
 
                 next_tick().await;
                 let game_manager_finder = GameManagerFinder::wait_attach(&process).await;
